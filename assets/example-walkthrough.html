@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page walkthrough</title>
+<!-- Minimal guided-walkthrough template: script of chapters/steps, replay-based rendering, player
+     with auto-pause, scrubber, chapter buttons and speed. Topic: what a database page is. -->
+<style>
+  :root { --bg:#faf9f5; --surface:#fff; --surface1:#f1efe8; --text:#1f1e1d; --text2:#5f5e5a; --muted:#888780;
+          --border:rgba(31,30,29,.15); --border-strong:rgba(31,30,29,.3); --accent:#185FA5; --track:#e4e2da; color-scheme:light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#1f1e1d; --surface:#262624; --surface1:#30302e;
+    --text:#f1efe8; --text2:#b4b2a9; --border:rgba(241,239,232,.15); --border-strong:rgba(241,239,232,.3); --accent:#85B7EB; --track:#3a3a37; color-scheme:dark; } }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { position:relative; max-width:760px; margin:0 auto; padding:24px 16px; }
+  h1 { font-size:22px; font-weight:500; margin:0 0 12px; }
+  svg { display:block; width:100%; height:auto; background:var(--surface); border:.5px solid var(--border); border-radius:12px 12px 0 0; }
+  svg text { font-family:inherit; }
+  .tm { font-size:13px; fill:var(--text); } .th { font-size:14px; font-weight:500; fill:var(--text); } .ts { font-size:12px; fill:var(--text2); }
+  .frame { fill:none; stroke:var(--border-strong); } .arr { stroke:var(--muted); stroke-width:1.1; fill:none; }
+  .hl { fill:none; stroke:#EF9F27; stroke-width:2.2; }
+  .c-gray>rect { fill:#F1EFE8; stroke:#5F5E5A; } .c-purple>rect { fill:#EEEDFE; stroke:#534AB7; } .c-purple>.tm { fill:#3C3489; }
+  @media (prefers-color-scheme: dark) { .c-gray>rect { fill:#444441; stroke:#B4B2A9; } .c-purple>rect { fill:#3C3489; stroke:#AFA9EC; } .c-purple>.tm { fill:#CECBF6; } }
+  #cap { background:var(--surface); border:.5px solid var(--border); border-top:none; border-radius:0 0 12px 12px; padding:10px 16px 12px; min-height:96px; }
+  #capch { font-size:12px; color:var(--muted); } #captext { font-size:16px; margin:2px 0 0; } #caphint { font-size:13px; color:var(--text2); min-height:18px; }
+  .prow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  button, select { font:inherit; font-size:13px; color:var(--text); background:transparent; border:.5px solid var(--border-strong); border-radius:8px; padding:5px 12px; cursor:pointer; }
+  button:hover { background:var(--surface1); } button.on { background:var(--surface1); border-color:var(--text2); font-weight:500; }
+  #time { font-size:13px; color:var(--text2); margin-left:auto; font-variant-numeric:tabular-nums; }
+  #scrub { position:relative; height:28px; margin:10px 0 4px; cursor:pointer; touch-action:none; }
+  #scrub .track, #scrub .fill { position:absolute; top:11px; height:6px; border-radius:3px; left:0; }
+  #scrub .track { right:0; background:var(--track); } #scrub .fill { background:var(--text2); }
+  #scrub .tick { position:absolute; top:7px; width:2px; height:14px; margin-left:-1px; background:var(--muted); }
+  #scrub .knob { position:absolute; top:5px; width:18px; height:18px; margin-left:-9px; border-radius:50%; background:var(--surface); border:2px solid var(--text); box-sizing:border-box; }
+  #chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .sources { font-size:13px; color:var(--text2); } .sources a { color:var(--accent); }
+  #tip { position:absolute; display:none; max-width:280px; padding:8px 10px; font-size:13px; background:var(--surface); border:.5px solid var(--border-strong); border-radius:8px; pointer-events:none; }
+</style>
+</head>
+<body>
+<main id="app">
+  <h1>What a database page is</h1>
+  <svg viewBox="0 0 680 360" role="img" aria-label="Animated explainer"><defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--muted)" stroke-width="1.5"/></marker></defs><g id="dyn"></g></svg>
+  <div id="cap" aria-live="polite"><div id="capch"></div><p id="captext"></p><div id="caphint"></div></div>
+  <div id="scrub" data-tip="Drag to move through the animation. Marks show where chapters start."><div class="track"></div><div class="fill"></div><div id="ticks"></div><div class="knob"></div></div>
+  <div class="prow">
+    <button id="play">▶ Play</button><button id="replay">↺ Replay step</button><button id="next">Next step ▸</button>
+    <select id="speed"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select>
+    <span id="time"></span>
+  </div>
+  <div id="chips"></div>
+  <section class="sources"><p><b>Simplifications:</b> the page is drawn far larger than scale and holds only a few rows.</p><p><b>Sources</b></p><ol id="srcs"></ol></section>
+  <div id="tip"></div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const clamp = u => Math.max(0, Math.min(1, u));
+const E = u => { u = clamp(u); return u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; };
+const seg = (u, a, b) => clamp((u - a) / (b - a));   // stagger sub-steps inside one step
+
+/* ---------- 1. Scene actions. Each takes progress u (0..1) and must be pure: no random, no clock. ---------- */
+function add(S, u, id, it) { S[id] = { ...it, op: (it.op ?? 1) * E(u) }; }
+function del(S, u, id) { if (!S[id]) return; if (u >= 1) delete S[id]; else S[id].op *= 1 - E(u); }
+function mv(S, u, id, to) {                            // numbers animate; other props switch at u = 0.5
+  const it = S[id]; if (!it) return;
+  for (const [p, v] of Object.entries(to)) {
+    if (typeof v === 'number' && typeof it[p] === 'number') it[p] += (v - it[p]) * E(u); else if (u >= .5) it[p] = v;
+  }
+}
+function hl(S, u, ...ids) { if (u > 0) ids.forEach(id => S[id] && (S[id].hl = true)); }   // focus outline, current step only
+function fly(S, u, id, a, b, fill = '#7F77DD') {      // a dot that travels a → b during the step
+  if (u <= 0 || u >= 1) { delete S[id]; return; }
+  S[id] = { type: 'dot', x: a[0] + (b[0] - a[0]) * E(u), y: a[1] + (b[1] - a[1]) * E(u), fill, op: 1 };
+}
+const box = (x, y, w, h, c, l1, tip, more = {}) => ({ type: 'box', x, y, w, h, c, l1, tip, ...more });
+const text = (x, y, s, c = 'ts', tip) => ({ type: 'text', x, y, s, c, tip });
+const arrow = (x1, y1, x2, y2, c1, c2, tip) => ({ type: 'arrow', x1, y1, x2, y2, c1x: c1[0], c1y: c1[1], c2x: c2[0], c2y: c2[1], tip });
+
+/* ---------- 2. Script: chapters and steps ---------- */
+const CH = [], BEATS = [];
+const chapter = name => CH.push({ name, beat: BEATS.length });
+const step = (dur, cap, fn, pause = true) => BEATS.push({ dur, cap, fn, pause, ch: CH.length - 1 });
+const rowY = i => 112 + i * 30, ptrX = s => 430 - (s + 1) * 26;
+const ptrArrow = s => arrow(ptrX(s) + 12, 322, 432, rowY(s) + 13, [ptrX(s) + 12, 290], [470 + s * 16, rowY(s) + 13], `Pointer ${s + 1} holds the offset of row ${s + 1}.`);
+
+chapter('1 · A page');
+step(5, 'A database keeps a table in a file. The file is cut into equal blocks called pages. SQL Server pages are 8 KB, and PostgreSQL pages are usually 8 kB too.', (S, u) => {
+  for (let i = 0; i < 6; i++) add(S, seg(u, i * .12, i * .12 + .3), 'f' + i, box(130 + i * 72, 30, 66, 34, 'gray', `page ${i}`, `Page ${i}: one block of the table file.`));
+});
+step(5, 'The engine reads and writes whole pages. Let\'s open page 0. It starts with a header that describes the page.', (S, u) => {
+  hl(S, u, 'f0');
+  add(S, seg(u, 0, .4), 'pg', box(250, 76, 184, 272, 'frame', null, 'Page 0, drawn large.'));
+  add(S, seg(u, .4, .8), 'hdr', box(254, 80, 176, 24, 'gray', 'page header', 'The page header: facts about the page, such as its number and type.'));
+  hl(S, seg(u, .4, 1), 'hdr');
+});
+step(6, 'Rows come after the header. An array of pointers sits at the other end. Each pointer holds the offset where its row starts.', (S, u) => {
+  for (let s = 0; s < 3; s++) {
+    add(S, seg(u, s * .25, s * .25 + .2), 'r' + s, box(254, rowY(s), 176, 26, 'purple', `row ${s + 1}`, `Row ${s + 1}: its bytes sit here.`));
+    add(S, seg(u, s * .25 + .1, s * .25 + .3), 'p' + s, box(ptrX(s), 322, 24, 22, 'gray', String(s + 1), `Pointer ${s + 1}.`));
+    add(S, seg(u, s * .25 + .15, s * .25 + .35), 'a' + s, ptrArrow(s));
+  }
+});
+
+chapter('2 · Adding a row');
+step(6, 'A new row goes after the last row, and its pointer goes before the last pointer. The two grow toward each other. The gap in the middle is the free space.', (S, u) => {
+  add(S, seg(u, 0, .2), 'free', box(258, 206, 168, 110, 'frame', 'free space', 'Free space. New rows and pointers both take space from here.', { dash: true }));
+  fly(S, seg(u, .2, .45), 'dot', [120, 200], [342, rowY(3) + 13]);
+  add(S, seg(u, .4, .6), 'r3', box(254, rowY(3), 176, 26, 'purple', 'row 4', 'The new row.'));
+  add(S, seg(u, .5, .7), 'p3', box(ptrX(3), 322, 24, 22, 'gray', '4', 'The new pointer.'));
+  add(S, seg(u, .6, .8), 'a3', ptrArrow(3));
+  mv(S, seg(u, .4, .7), 'free', { y: 236, h: 80 });
+  hl(S, seg(u, .4, 1), 'r3', 'p3', 'free');
+});
+step(5, 'When the free space is too small for a new row, the page is full. The engine then has to use another page.', (S, u) => {
+  hl(S, u, 'free');
+  add(S, seg(u, .3, .7), 'note', text(560, 270, 'too small = page full', 'tm', 'A full page cannot take another row.'));
+});
+
+/* ---------- 3. Timing and rendering: the picture at time t = replay finished steps, then the current one ---------- */
+const SETTLE = .5, EPS = .001;
+let acc = 0; BEATS.forEach(b => { b.t0 = acc; b.t1 = acc + b.dur + SETTLE; acc = b.t1; });
+const TOTAL = acc; CH.forEach(c => c.t0 = BEATS[c.beat].t0);
+function stateAt(t) {
+  const S = {}; let i = 0;
+  for (; i < BEATS.length && t >= BEATS[i].t1; i++) BEATS[i].fn(S, 1);
+  Object.values(S).forEach(it => it.hl = false);
+  if (i >= BEATS.length) i = BEATS.length - 1; else BEATS[i].fn(S, clamp((t - BEATS[i].t0) / BEATS[i].dur));
+  return { S, i };
+}
+const T = (x, y, s, c, a = 'middle') => `<text class="${c}" x="${x}" y="${y}" text-anchor="${a}" dominant-baseline="central">${esc(s)}</text>`;
+function draw(it, now) {
+  const op = clamp(it.op ?? 1); if (op < .01) return '';
+  const tp = it.tip ? ` data-tip="${esc(it.tip)}"` : '', o = ` opacity="${op.toFixed(3)}"`;
+  if (it.type === 'text') return `<g${o}${tp}>${T(it.x, it.y, it.s, it.c)}</g>`;
+  if (it.type === 'dot') return `<circle cx="${it.x}" cy="${it.y}" r="5" fill="${it.fill}"${o}/>`;
+  if (it.type === 'arrow') return `<path class="arr" d="M${it.x1} ${it.y1}C${it.c1x} ${it.c1y} ${it.c2x} ${it.c2y} ${it.x2} ${it.y2}" marker-end="url(#ah)"${o}${tp}/>`;
+  const fr = it.c === 'frame';
+  let s = `<g class="${fr ? '' : 'c-' + it.c}"${o}${tp}><rect class="${fr ? 'frame' : ''}" x="${it.x}" y="${it.y}" width="${it.w}" height="${it.h}" rx="${fr ? 8 : 4}" stroke-width="0.5"${it.dash ? ' stroke-dasharray="4 3"' : ''}/>`;
+  if (it.l1) s += T(it.x + it.w / 2, it.y + it.h / 2, it.l1, fr ? 'ts' : 'tm');
+  s += '</g>';
+  if (it.hl) s += `<rect class="hl" x="${it.x - 2.5}" y="${it.y - 2.5}" width="${it.w + 5}" height="${it.h + 5}" rx="6" opacity="${(op * (.55 + .45 * Math.sin(now / 260))).toFixed(3)}"/>`;
+  return s;
+}
+
+/* ---------- 4. Player: auto-pause at the end of each step, scrubber, chapters, speed ---------- */
+let t = 0, playing = false, speed = 1, last = null, skipPause = -1, capKey = '';
+const beatAt = tt => { let i = 0; while (i < BEATS.length - 1 && tt >= BEATS[i].t1) i++; return i; };
+function setPlaying(p) {
+  playing = p;
+  if (p) { if (t >= TOTAL - 2 * EPS) t = 0; const i = beatAt(t); if (t >= BEATS[i].t1 - 2 * EPS) skipPause = i; }   // resume past this pause point
+  $('play').textContent = p ? '❚❚ Pause' : '▶ Play';
+}
+function seek(tt, play) { t = Math.max(0, Math.min(TOTAL - EPS, tt)); skipPause = -1; setPlaying(!!play); }
+function tick(now) {
+  const dt = last == null ? 0 : Math.min(.1, (now - last) / 1000); last = now;
+  if (playing) {
+    const i = beatAt(t), b = BEATS[i]; let nt = t + dt * speed;
+    if (i !== skipPause && b.pause && nt >= b.t1 - EPS) { nt = b.t1 - EPS; setPlaying(false); }
+    if (nt >= TOTAL - EPS) { nt = TOTAL - EPS; setPlaying(false); }
+    if (beatAt(nt) !== i) skipPause = -1;
+    t = nt;
+  }
+  const { S, i } = stateAt(t);
+  $('dyn').innerHTML = Object.values(S).map(it => draw(it, now)).join('');
+  const b = BEATS[i], atEnd = t >= b.t1 - .03, key = i + '|' + playing + '|' + atEnd;
+  if (key !== capKey) {
+    capKey = key;
+    $('capch').textContent = `Chapter ${CH[b.ch].name} · step ${i + 1} of ${BEATS.length}`;
+    $('captext').textContent = b.cap;
+    $('caphint').textContent = playing ? '' : atEnd ? 'Paused. Press Play or Space to continue.' : 'Paused.';
+    [...$('chips').children].forEach((c, k) => c.classList.toggle('on', k === b.ch));
+  }
+  const pct = t / TOTAL * 100 + '%';
+  document.querySelector('#scrub .fill').style.width = pct; document.querySelector('#scrub .knob').style.left = pct;
+  const f = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  $('time').textContent = `${f(t)} / ${f(TOTAL)}`;
+  requestAnimationFrame(tick);
+}
+$('ticks').innerHTML = CH.map(c => `<div class="tick" style="left:${c.t0 / TOTAL * 100}%"></div>`).join('');
+$('chips').innerHTML = CH.map((c, k) => `<button data-ch="${k}">${esc(c.name)}</button>`).join('');
+$('chips').onclick = e => { const b = e.target.closest('[data-ch]'); if (b) seek(CH[+b.dataset.ch].t0, true); };
+$('play').onclick = () => setPlaying(!playing);
+$('replay').onclick = () => seek(BEATS[beatAt(t)].t0, true);
+$('next').onclick = () => { const i = beatAt(t); if (i < BEATS.length - 1) seek(BEATS[i + 1].t0, true); };
+$('speed').onchange = e => speed = +e.target.value;
+const sc = $('scrub'), posT = x => { const r = sc.getBoundingClientRect(); return clamp((x - r.left) / r.width) * TOTAL; };
+let drag = false;
+sc.onpointerdown = e => { drag = true; sc.setPointerCapture(e.pointerId); seek(posT(e.clientX), false); };
+sc.onpointermove = e => { if (drag) seek(posT(e.clientX), false); };
+sc.onpointerup = () => drag = false;
+document.addEventListener('keydown', e => {
+  if (e.target.closest('button, select')) return;   // a focused button handles its own Space; avoids a double toggle
+  if (e.key === ' ') { e.preventDefault(); setPlaying(!playing); }
+  else if (e.key === 'ArrowRight') $('next').click(); else if (e.key === 'ArrowLeft') $('replay').click();
+});
+const tipEl = $('tip'), app = $('app');
+document.addEventListener('mousemove', e => {
+  const el = !drag && e.target.closest && e.target.closest('[data-tip]');
+  if (!el) return tipEl.style.display = 'none';
+  tipEl.textContent = el.dataset.tip; tipEl.style.display = 'block';
+  const a = app.getBoundingClientRect();
+  tipEl.style.left = Math.min(e.clientX - a.left + 14, a.width - tipEl.offsetWidth - 8) + 'px';
+  tipEl.style.top = e.clientY - a.top + 18 + 'px';
+});
+$('srcs').innerHTML = [
+  ['Microsoft Learn: Page and extent architecture guide', 'https://learn.microsoft.com/en-us/sql/relational-databases/pages-and-extents-architecture-guide'],
+  ['PostgreSQL docs: Database Page Layout', 'https://www.postgresql.org/docs/current/storage-page-layout.html'],
+].map(([n, u]) => `<li><a href="${u}" target="_blank" rel="noopener">${esc(n)}</a></li>`).join('');
+seek(0, false); requestAnimationFrame(tick);
+</script>
+</body>
+</html>
