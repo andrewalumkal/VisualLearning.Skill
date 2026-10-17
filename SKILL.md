@@ -1,16 +1,22 @@
 ---
 name: visual-learning
-description: Build animated visual explainers that teach how a technical system works under the covers (Kafka, databases, networking, Kubernetes, compilers, anything with moving parts). Two formats that work together. Guided walkthroughs are narrated, chaptered animations with captions, a scrubber, speed control and a pause per step. Interactive explorers have switchable views, drill-downs, controls and plain-language tooltips. Fundamentals come first, then complexity. Every fact shown is checked against real sources. The agent proposes 2–3 approaches with references before building, and a separate subagent reviews each part before delivery. Use this skill whenever the user wants to learn or understand how something works, asks to "show me", "visualize", "animate", "walk me through", "explain it like a video", "step by step" or "explain visually", says they are a visual learner, or asks for a diagram that moves, a simulation, a drill-down view, or a playground for a concept, even if they never say the word "visual".
+description: Build animated visual explainers that teach how something works or unfolds, in any subject with parts that interact or steps that happen in order. Two formats that work together. Guided walkthroughs are narrated, chaptered animations with captions, a scrubber, speed control and a pause per step. Interactive explorers have switchable views, drill-downs, controls and plain-language tooltips. Fundamentals come first, then complexity. Every fact shown is checked against real sources. The agent proposes 2–3 approaches with references before building, and a separate subagent reviews each part before delivery. Use this skill whenever the user wants to learn or understand how something works or happens, asks to "show me", "visualize", "animate", "walk me through", "explain it like a video", "step by step" or "explain visually", says they are a visual learner, or asks for a diagram that moves, a simulation, a drill-down view, or a playground for a concept, even if they never say the word "visual".
 license: MIT
 ---
 
 # Visual learning explainers
 
-The goal is not to fill in a format. The goal is for a human to **understand** a system by watching
-it work: first the fundamentals and the big picture, then the complexity, at their own pace.
+The goal is not to fill in a format. The goal is for a human to **understand** a subject by
+watching it work: first the fundamentals and the big picture, then the complexity, at their own
+pace.
 
-Everything below is guidance with reasons, not a recipe. Pick what serves the topic. A B-tree, a
-TCP handshake and a Kafka cluster need different pictures, different views and different controls.
+This skill works for any subject with parts that interact or steps that happen in order. In this
+file, *system* means the subject's moving parts, and *model* means the state that changes. Kafka
+appears in the examples because the explorer example is about it. Apply each principle to your own
+subject.
+
+Everything below is guidance with reasons, not a recipe. Pick what serves the topic. Different
+subjects need different pictures, different views and different controls.
 
 There are two formats, and one topic can use both, more than once: **guided walkthroughs** that
 the learner watches, and **explorers** that the learner plays with. See "Choose the formats".
@@ -25,31 +31,28 @@ Three things are not optional:
 ## Accuracy comes first
 
 A learner can't tell a confident animation from a correct one. A wrong visual teaches
-misinformation, and teaches it well, so it's worse than no visual. Treat every mechanism, default,
-number, name and behavior the visual shows as a claim that needs evidence.
+misinformation, and teaches it well, so it's worse than no visual. Treat every mechanism, number,
+date, name, default and behavior the visual shows as a claim that needs evidence.
 
-- **Research before you design.** Look things up with the tools you have (web search, fetching
-  docs, reading source code in the repo). Don't rely on memory alone.
-- **Prefer primary sources:**
-  - official documentation
-  - specs and RFCs
-  - design proposals (for example Kafka KIPs or PostgreSQL docs and source)
-  - the project's source code
-
-  After those, well-known engineering write-ups from the maintainers or vendors. Avoid
-  unattributed blog posts and forum answers unless nothing better exists, and say so when you use
-  them.
-- **Mind versions.** Behavior changes between releases. For example, Kafka's ZooKeeper vs KRaft
-  modes, or its eager vs cooperative rebalancing. Note which version the visual describes.
+- **Research before you design.** Look things up with the tools you have. Don't rely on memory
+  alone.
+- **Prefer primary and authoritative sources for the field:** official documentation, standards,
+  peer-reviewed work and primary records. For Kafka, that means the official documentation, the
+  design proposals (KIPs) and the source code. After those, well-known write-ups from recognized
+  experts. Avoid unattributed blog posts and forum answers unless nothing better
+  exists, and say so when you use them.
+- **Mind versions and context.** Facts can change with the version, the date or the place. For
+  example, Kafka's ZooKeeper vs KRaft modes. Note which one the visual describes. Where experts
+  disagree, say so instead of picking a side without telling the learner.
 - **Only cite what you read.** List a source only if you actually opened it in this session and it
   supports the claim. Never invent or guess a URL.
 - **No silent assumptions.** If you can't find a source for something but believe you know how it
   works, say so up front, before building. For example: "I couldn't find a primary source for X.
   From general knowledge I believe it works like Y." Then let the user decide: build it as-is,
   research more, or leave it out.
-- **Label simplifications.** A simulation always simplifies (fewer partitions, faster time, a
+- **Label simplifications.** A simulation always simplifies (fewer parts, faster time, a
   sliding window). That's fine, but say so on the page so a simplification isn't mistaken for how
-  the system works.
+  the subject works.
 - **Keep the evidence with the explainer.** Every explainer gets a "Sources" list on the page with
   titles and links. When an element shows something you couldn't verify, end its tooltip with "Not
   verified in a source." That way the evidence outlives the planning conversation.
@@ -60,7 +63,8 @@ number, name and behavior the visual shows as a claim that needs evidence.
 
 ## Who this is for: standing preferences
 
-These came from the user directly. Treat them as defaults unless the user says otherwise:
+These came from the user directly. Treat them as defaults unless the user says otherwise. The
+review is the exception: it always happens.
 
 - **A visual learner who learns by watching actions happen.** For example, a message drops into a
   queue and gets picked up. Motion should show the mechanism. Nothing moves just to decorate.
@@ -70,7 +74,9 @@ These came from the user directly. Treat them as defaults unless the user says o
 - **Fundamentals first, complexity on demand.** The first thing on screen teaches the core idea.
   Detail is available, but the learner chooses when to go there.
 - **Interactive.** Controls let the learner change the system and see the consequence: rates,
-  adding or removing workers, bursts, single steps, failures. A static picture felt incomplete.
+  adding or removing parts, bursts, single steps, failures. A static picture felt incomplete.
+- **Connect to what the learner already knows.** Use analogies from their own background. Label
+  each one as an analogy, so it isn't mistaken for a fact about the subject.
 - **Every element explains itself with a tooltip** in plain, short sentences. See "Tooltips".
 - **Drillable things are obvious.** Where a view supports zooming in, mark every zoom target with
   one standard marker: a blue plus badge with a slow pulsing ring.
@@ -81,7 +87,7 @@ These came from the user directly. Treat them as defaults unless the user says o
   introduced, did not help: "I don't even really understand the diagram." Introduce each element
   before it moves.
 - **Iterate.** The user reacts ("slower", "fewer colors", "add a view for X") and expects you to
-  change that one thing, then show it again.
+  change that one thing, get it reviewed, then show it again.
 - **Reviewed before delivery.** The user requires a separate subagent to review each part, and
   the fixes to happen before it's delivered. This is a requirement, not a preference you can drop.
 
@@ -95,10 +101,12 @@ and in what order. Collect sources as you go (see "Accuracy comes first").
   in a group. If the learner leaves with only these, the visual has done its job.
 - **Misconceptions:** what a newcomer probably believes that isn't true ("Kafka is a queue").
   Showing the wrong model next to the right one is one of the strongest teaching moves.
-- **Layers of complexity:** what comes after the fundamentals, roughly in order: partitions, then
-  consumer groups and rebalancing, then replication and failover, then retention and compaction.
-- **The model:** the entities, what flows between them, and the state that changes (offsets, lag,
-  queue depth). One simulated model should drive every view so the views never disagree.
+- **Layers of complexity:** what comes after the fundamentals, roughly in order. For Kafka:
+  partitions, then consumer groups and rebalancing, then replication and failover, then retention
+  and compaction.
+- **The model:** the entities, what flows between them, and the state that changes (in Kafka:
+  offsets, lag, queue depth). One simulated model should drive every view so the views never
+  disagree.
 
 Get the semantics right, because visuals teach whether they're right or wrong. Label any
 simplification ("the window shows the last 10 records; real retention is time-based").
@@ -165,8 +173,7 @@ Guidance for the mix:
 - **First contact: start with a walkthrough.** A learner who doesn't know the topic can't read a
   dense diagram yet. A walkthrough introduces each part before it moves.
 - **Complex sequences get their own walkthrough**, even inside a topic that already has an
-  explorer. Examples: an UPDATE that creates a version and later gets cleaned up, a rebalance, a
-  failover.
+  explorer. For example, a Kafka rebalance.
 - **A topic can have several of each:** an overview walkthrough, deep-dive walkthroughs for hard
   parts, and explorer views for experimentation.
 - **Link them.** A walkthrough ends with "try it yourself", linking to the explorer. An explorer
@@ -177,10 +184,10 @@ Guidance for the mix:
 ## 4. Guided walkthroughs
 
 A walkthrough is a script: chapters made of steps. Each step has a caption and a short animation.
-The picture builds up from an empty canvas to the full system.
+The picture builds up from an empty canvas to the finished scene.
 
 - **Build up, don't present.** Introduce every element before it moves. Add one part per step,
-  and keep parts where they are, so the picture grows into its final layout. Never show a box the
+  and keep parts where they are, so the picture grows into its final layout. Never show a shape the
   captions haven't explained yet.
 - **One idea per step.** Write the caption in 1–4 short sentences, in the same plain style as the
   tooltips. Give each step 4–10 seconds of motion. Stagger the sub-steps inside a step so the eye
@@ -195,10 +202,10 @@ The picture builds up from an empty canvas to the full system.
   - Keyboard: Space plays and pauses, ← replays the step, → goes to the next step.
 - **Visual language:**
   - An amber outline marks what changed in this step. It shows only during that step.
-  - A moving dot shows a copy, a write or a lookup. Prefer this to permanent link lines, which
-    pile up and clutter the picture.
+  - A moving dot shows something that travels from one part to another. Prefer this to
+    permanent link lines, which pile up and clutter the picture.
   - Show an arrow when you introduce a relationship, then remove it.
-  - A banner names the operation that runs now, for example "Transaction 102: UPDATE …".
+  - A banner names the event that happens now, for example "Producer sends order 17".
 - **Exact scrubbing.** The picture at time t comes from replaying every finished step to its end,
   then the current step at its progress. So steps must be pure: no randomness and no clock reads.
 
@@ -214,9 +221,9 @@ Learning rarely fits one picture with one path into it. Give the learner a main 
 | Flow | What moves where, live | Producers → partitions → consumers |
 | Structure or zoom | What is inside what; drill into parts | Cluster → partitions → one partition's log |
 | Lifecycle or journey | One item from birth to end | One record: send, append, replicate, read, expire |
-| Failure or what-if | How the system reacts to trouble | Stop a broker; a follower becomes leader |
+| Failure or what-if | How the subject reacts to trouble or change | Stop a broker; a follower becomes leader |
 | Timeline or sequence | Ordering and timing between parties | Producer ack, replication, commit, in time order |
-| Storage | How it's laid out on disk or in memory | Segment files, index, retention cleanup |
+| Layout | Where things sit, in space or in storage | Segment files, index, retention cleanup |
 
 Guidance for choosing:
 
@@ -224,49 +231,48 @@ Guidance for choosing:
   under 10 seconds. A learner who never clicks anything should still learn the core idea.
 - **Views are peers, not a ladder.** Use buttons or tabs on the main screen to switch between them.
   Don't force the learner through one overview to reach everything.
-- **Drill-down is a tool inside a view**, used where containment is the point: a cluster contains
-  brokers, a page contains keys. Not every view needs it, and not every topic needs it.
+- **Drill-down is a tool inside a view**, used where containment is the point: a Kafka cluster
+  contains brokers. Not every view needs it, and not every topic needs it.
 - **Settings can change how a view shows the model**, when that teaches something. Examples: a
-  detail toggle (simple vs full labels), slow motion, showing one key only, or failure on/off.
+  detail toggle (simple vs full labels), slow motion, showing one item only, or failure on/off.
 - **Start small.** One or two strong views beat five thin ones. Offer more views as next steps.
 
 ## 6. Pick the representation per view
 
-Let the subject's shape decide the picture. Logs and queues read well as horizontal lanes. Trees
-read well as trees. Protocols read well as two columns with messages crossing in time. Memory and
-disk layouts read well as blocks. Ask: *what drawing would make the mechanism obvious with the
-labels removed?*
+Let the subject's shape decide the picture. Ask: *what drawing would make the mechanism obvious
+with the labels removed?* For example, a Kafka log reads well as a horizontal lane.
 
 ## 7. Make explorers interactive where it teaches
 
-For each view, and each zoom level within a view, ask: *what would an engineer want to turn up or
-down here to see what happens?* Give it 2–4 controls. Show the consequence of every control in the
-picture itself: lag numbers climb, an idle consumer turns gray, reading pauses during a rebalance.
-Cut any control whose effect you can't see.
+For each view, and each zoom level within a view, ask: *what would a curious learner want to turn up
+or down here to see what happens?* Give it 2–4 controls. Show the consequence of every control in
+the picture itself. In Kafka: lag numbers climb, an idle consumer turns gray, reading pauses during
+a rebalance. Cut any control whose effect you can't see.
 
 Useful kinds of control:
 
 - rates and speed
-- counts (producers, consumers, replicas)
-- bursts
+- amounts and counts
+- bursts and sudden changes
 - single steps, so cause and effect is visible one event at a time
-- failure injection
+- failures, or removing a part
 - pause and play
 
 ## 8. Tooltips: explain every element in simple words
 
-Give every meaningful element a tooltip: boxes, records, pointers, numbers, legends, buttons and
+Give every meaningful element a tooltip: boxes, items, markers, numbers, legends, buttons and
 sliders. Tips on moving things can include live values ("The consumer reads offset 27 next."),
 which ties the words to the animation.
 
 Write them in the spirit of ASD-STE100 Simplified Technical English. Follow it loosely, not as a
-strict standard. The reader may have no technical background.
+strict standard. The reader may have no background in the subject.
 
 - One idea per sentence. Keep sentences short: aim for under 15 words and never go over 20.
   Use 1–3 sentences per tip.
 - Active voice, present tense: "Kafka adds each record to the end", not "records are appended".
-- Common words, with one meaning each. When a technical term matters (offset, partition, lag), name
-  it and say what it is in the same tip: "Lag is the number of records that wait to be read."
+- Common words, with one meaning each. When a term from the subject matters (in Kafka: offset,
+  partition, lag), name it and say what it is in the same tip: "Lag is the number of records that
+  wait to be read."
 - No filler or hedging ("basically", "simply", "just", "it's worth noting"), no idioms, no jokes.
 - Say what the thing *is* or *does*, then what to notice: "Send 10 records quickly. Look at the lag
   increase."
@@ -295,18 +301,19 @@ up one level.
 - Wide, short SVG canvases, about 680×320, so a scene fits on screen without scrolling. Text at
   14px for labels and 12px for secondary text. Sentence case. At most two lines of text in a box.
 - Color carries meaning, not decoration. Use 2–3 color ramps per scene: for example, one hue per
-  key or category, teal for readers, and gray for structure and "done" states. Add a legend when
-  color encodes something.
+  category, one hue for the things that act on them, and gray for structure and "done" states.
+  Add a legend when color encodes something.
 - Work in both light and dark mode.
 - Motion is short (0.3–0.6s in explorers), eased and purposeful. In a walkthrough, each motion
   inside a step is about 0.5–2s, and the steps follow the pacing in "Guided walkthroughs". Things
-  that persist in the real system should persist in the visual. In Kafka, records that have been
-  read fade but stay.
-- A walkthrough canvas can be taller (about 680×400), because it builds up a whole system.
+  that persist in the real system should persist in the visual. For example, Kafka records that have
+  been read fade but stay.
+- A walkthrough canvas can be taller (about 680×400), because it builds up a whole picture.
 
 ## Worked examples and reusable parts
 
 There are two examples, one per format. **Use them as references and parts bins, not molds.**
+Both are about computing topics, but their parts work for any subject.
 
 ### Walkthrough template
 
@@ -332,8 +339,8 @@ There are two examples, one per format. **Use them as references and parts bins,
 
 `assets/example-kafka-explorer.html` is one finished explainer, built for this user. It has two
 views, "Basics: queue vs log" and "System: flow and zoom", and the System view drills into
-partitions and the consumer group. It's a single HTML file with no build step. **Use it as a
-reference and a parts bin, not a mold.** Its structure fits Kafka; your topic may need different
+partitions and the consumer group. It's a single HTML file with no build step. Its structure fits
+Kafka; your topic may need different
 views, layouts and controls.
 
 Parts worth reusing as they are:
@@ -393,8 +400,9 @@ For a walkthrough, also check:
 - Chapter buttons, the scrubber, Replay step, Next step, and the final recap screen all work.
 - The total time matches what the page says.
 
-For an explorer with a model behind it, run many random actions in a script and assert any
-invariants. For example, two engines in a comparison must return the same rows to the same query.
+For an explorer with a model behind it, run many random actions in a script and assert what must
+always hold in the model. For example, in Kafka, lag is never negative, and no partition has two
+consumers in the same group.
 
 If you can't run it, say so plainly.
 
@@ -427,7 +435,7 @@ Give the reviewer:
 
 Ask it to check:
 
-1. **Claims.** Check every caption, tooltip, label, number, default and version against the
+1. **Claims.** Check every caption, tooltip, label, number, date, default and version against the
    sources. The reviewer opens each source itself instead of trusting the list. It looks for
    newer versions that change the answer. Flag any claim with no source, and any claim the
    source doesn't support.
@@ -510,8 +518,8 @@ Explorer:
 
 End each delivery by offering 2–3 concrete next steps, such as another view, a failure control, a
 simpler basics view, a deep-dive walkthrough of a hard part, or an explorer to go with a
-walkthrough. When the learner reacts, change that one thing and show it again. Keep their
-preferred style stable across topics so each new topic feels familiar.
+walkthrough. When the learner reacts, change that one thing, get it reviewed and show it again. Keep
+their preferred style stable across topics so each new topic feels familiar.
 
 A change that adds new facts goes through the same accuracy check. Research it, say what you
 couldn't verify, and update the Sources list. Every change also gets an independent review that

@@ -1,7 +1,7 @@
 # visual-learning
 
-An [Agent Skill](https://agentskills.io) that teaches Claude to build animated visual explainers
-for technical systems, such as Kafka, database internals, networking, Kubernetes or compilers.
+A [Claude skill](SKILL.md) that teaches Claude to build animated visual explainers for any subject
+with parts that interact or steps that happen in order.
 
 It builds two formats that work together:
 
@@ -17,6 +17,7 @@ you to pick one.
 After each part is built, a separate subagent reviews it. The reviewer checks the claims against
 the sources, how well it teaches, and how it behaves in a browser. Claude fixes the findings and
 checks the fixes before it delivers the part, and reports what was fixed and what was skipped.
+Where no subagent is available, Claude does its own fresh review and says it wasn't independent.
 
 ## Install
 
@@ -29,8 +30,8 @@ to match the skill's `name`.
 git clone https://github.com/andrewalumkal/VisualLearning.Skill.git ~/.claude/skills/visual-learning
 ```
 
-To share it with a team in one project, clone it into that project's `.claude/skills/visual-learning`
-folder and commit it there.
+To share it with a team in one project, clone it into that project's
+`.claude/skills/visual-learning` folder and commit it there.
 
 To update it later:
 
@@ -48,16 +49,16 @@ as a custom skill. Leave out `.git`, `.DS_Store` and `__MACOSX` files.
 Ask Claude to explain something visually, for example:
 
 - "Walk me through how Kafka consumer groups rebalance."
-- "Show me how a B-tree page split works."
-- "Explain like a video how PostgreSQL and SQL Server store a row."
+- "Show me how compound interest grows."
+- "Explain like a video how a bill becomes law."
 
 ## Contents
 
 | Path | What it is |
 |---|---|
-| `SKILL.md` | The skill instructions |
-| `assets/example-walkthrough.html` | A short guided-walkthrough template with the full player |
-| `assets/example-kafka-explorer.html` | A finished explorer example (Kafka) |
+| [`SKILL.md`](SKILL.md) | The skill instructions |
+| [`assets/example-walkthrough.html`](assets/example-walkthrough.html) | A short guided-walkthrough template with the full player |
+| [`assets/example-kafka-explorer.html`](assets/example-kafka-explorer.html) | A finished explorer example (Kafka) |
 
 Each example is a single HTML file with no build step. Open it over `http://localhost`, for
 example with `python3 -m http.server`.
