@@ -418,9 +418,9 @@ count, because the builder misses the same things twice.
   fix a part before building on it, the parts built later get those fixes too.
 - **Don't wait for the user between parts if they said not to.** The reviews still happen.
 - **Who reviews.** Use a separate subagent that starts with a fresh context and didn't take part
-  in the build. It only reads and reports. It doesn't edit files, so you make every fix. If you
-  have no subagent tool (for example on Claude.ai), do a separate review pass of your own from a
-  fresh read of the file. Tell the user that this review wasn't independent.
+  in the build. It only reads and reports. It doesn't edit files, so you make every fix. If your
+  tool can't start a subagent, do a separate review pass of your own from a fresh read of the
+  file. Tell the user that this review wasn't independent.
 - **Every change is reviewed.** This includes changes the user asks for later. The review covers
   what changed: a color tweak gets a short visual check, and a new chapter gets the full brief.
 
