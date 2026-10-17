@@ -14,6 +14,10 @@ Every fact shown is checked against real sources, and each explainer lists those
 page. Before building, Claude proposes 2–3 approaches with the sources it checked, and waits for
 you to pick one.
 
+After each part is built, a separate subagent reviews it. The reviewer checks the claims against
+the sources, how well it teaches, and how it behaves in a browser. Claude fixes the findings and
+checks the fixes before it delivers the part, and reports what was fixed and what was skipped.
+
 ## Install
 
 ### Claude Code

@@ -1,6 +1,6 @@
 ---
 name: visual-learning
-description: Build animated visual explainers that teach how a technical system works under the covers (Kafka, databases, networking, Kubernetes, compilers, anything with moving parts). Two formats that work together. Guided walkthroughs are narrated, chaptered animations with captions, a scrubber, speed control and a pause after each step. Interactive explorers have switchable views, drill-downs, controls and plain-language tooltips. Fundamentals come first, then complexity. Every fact shown is checked against real sources, and the agent proposes 2–3 approaches with references before building. Use this skill whenever the user wants to learn or understand how something works, asks to "show me", "visualize", "animate", "walk me through", "explain it like a video", "step by step" or "explain visually", says they are a visual learner, or asks for a diagram that moves, a simulation, a drill-down view, or a playground for a concept, even if they never say the word "visual".
+description: Build animated visual explainers that teach how a technical system works under the covers (Kafka, databases, networking, Kubernetes, compilers, anything with moving parts). Two formats that work together. Guided walkthroughs are narrated, chaptered animations with captions, a scrubber, speed control and a pause per step. Interactive explorers have switchable views, drill-downs, controls and plain-language tooltips. Fundamentals come first, then complexity. Every fact shown is checked against real sources. The agent proposes 2–3 approaches with references before building, and a separate subagent reviews each part before delivery. Use this skill whenever the user wants to learn or understand how something works, asks to "show me", "visualize", "animate", "walk me through", "explain it like a video", "step by step" or "explain visually", says they are a visual learner, or asks for a diagram that moves, a simulation, a drill-down view, or a playground for a concept, even if they never say the word "visual".
 license: MIT
 ---
 
@@ -15,10 +15,12 @@ TCP handshake and a Kafka cluster need different pictures, different views and d
 There are two formats, and one topic can use both, more than once: **guided walkthroughs** that
 the learner watches, and **explorers** that the learner plays with. See "Choose the formats".
 
-Two things are not optional:
+Three things are not optional:
 
 - **Accuracy.** Every fact the visual teaches is backed by a source you actually checked.
 - **Proposal first.** Propose approaches and present your sources before building anything.
+- **Independent review.** After you build each part, a separate reviewer checks it. Fix what it
+  finds before you deliver. See "Independent review after each part".
 
 ## Accuracy comes first
 
@@ -80,6 +82,8 @@ These came from the user directly. Treat them as defaults unless the user says o
   before it moves.
 - **Iterate.** The user reacts ("slower", "fewer colors", "add a view for X") and expects you to
   change that one thing, then show it again.
+- **Reviewed before delivery.** The user requires a separate subagent to review each part, and
+  the fixes to happen before it's delivered. This is a requirement, not a preference you can drop.
 
 ## 1. Research and plan the learning before the UI
 
@@ -125,6 +129,9 @@ Option C: <short name>   (only if there's a genuinely different third idea)
 
 Recommendation
   Which option and why, in 1–2 sentences.
+
+Review
+  The parts, in build order. A separate reviewer checks each one before delivery.
 ```
 
 The options should differ in a real way, for example:
@@ -358,9 +365,10 @@ Parts worth reusing as they are:
   has both, link them to each other with relative links. Browser previews may not run `file://`
   pages live, so serve the folder (for example `python3 -m http.server`) and open it over
   `http://localhost`.
+- Deliver only after the independent review and its fixes are done.
 - After it appears, write a short guide in prose. For a walkthrough, list the chapters and how to
   use the player. For an explorer, give 3–5 things to try, and point to the fundamentals view
-  first.
+  first. Add the review summary (see "Tell the user").
 
 ## Verify before saying it's done
 
@@ -389,6 +397,80 @@ For an explorer with a model behind it, run many random actions in a script and 
 invariants. For example, two engines in a comparison must return the same rows to the same query.
 
 If you can't run it, say so plainly.
+
+## Independent review after each part
+
+This is a requirement, not a default. Every part gets an independent review after you build it,
+and you fix what the review finds before you deliver it. A part is one walkthrough, one explorer,
+or one other page such as an index. Your own check in "Verify before saying it's done" doesn't
+count, because the builder misses the same things twice.
+
+- **Order.** Build the part, run your own checks, get it reviewed, fix, check the fixes, then
+  deliver it. Then start the next part. Parts often share code (one player, one color set). If you
+  fix a part before building on it, the parts built later get those fixes too.
+- **Don't wait for the user between parts if they said not to.** The reviews still happen.
+- **Who reviews.** Use a separate subagent that starts with a fresh context and didn't take part
+  in the build. It only reads and reports. It doesn't edit files, so you make every fix. If you
+  have no subagent tool (for example on Claude.ai), do a separate review pass of your own from a
+  fresh read of the file. Tell the user that this review wasn't independent.
+- **Every change is reviewed.** This includes changes the user asks for later. The review covers
+  what changed: a color tweak gets a short visual check, and a new chapter gets the full brief.
+
+### The reviewer's brief
+
+Give the reviewer:
+
+- the file paths, and how to serve them over `http://localhost`
+- who the learner is and what they already know
+- the outline the user agreed to
+- the page's Sources list and the "could not verify" list from the proposal
+
+Ask it to check:
+
+1. **Claims.** Check every caption, tooltip, label, number, default and version against the
+   sources. The reviewer opens each source itself instead of trusting the list. It looks for
+   newer versions that change the answer. Flag any claim with no source, and any claim the
+   source doesn't support.
+2. **Teaching.** Each element is introduced before it moves. Each step has one idea. Fundamentals
+   come before complexity. Analogies and simplifications are labeled.
+3. **Behavior.** Run the checklist in "Verify before saying it's done" in a real browser,
+   including dark mode. For an explorer, also try edge cases: reset during an animation, repeated
+   clicks, long runs, timers that outlive a reset, and caps or limits in the model.
+4. **Consistency.** Nothing contradicts an earlier part. Terms, colors and the legend match
+   across parts.
+
+Ask for findings in this shape:
+
+```
+Severity   Wrong | Misleading | Broken | Polish
+Where      chapter and step, or view and control
+Problem    one or two sentences
+Evidence   a source quote with its link, or the steps to reproduce
+Fix        a suggested change
+```
+
+Also ask for a short list of what it checked and found correct, so the review's coverage is
+visible.
+
+### Fix, then check the fixes
+
+- **Always fix** confirmed findings that are Wrong, Misleading or Broken, plus missing sources
+  and unreadable text.
+- **Fix Polish findings** when the fix is cheap and makes the page clearer.
+- **Skip a finding** only with a reason: it goes against the user's stated preferences, it's out
+  of scope, or it's a matter of taste. Never skip a Wrong, Misleading or Broken finding this way.
+- **The reviewer can be wrong.** Check the source yourself before you change a claim. Don't
+  change correct content just because the reviewer said so. Note the disagreement in the summary.
+- **Check each fix.** Rerun the reviewer's steps to reproduce, reopen the source, and repeat the
+  checks the fix could affect.
+- **Re-review large fixes.** If the fixes changed a lot of claims or model logic, ask a new
+  reviewer to check only what changed. Stop after two rounds, and report anything still open.
+
+### Tell the user
+
+When you deliver the part, include a short review summary, for example: "Review: 9 findings, 7
+fixed, 2 skipped." Name each skipped finding and give the reason. Mention any finding that is
+still open.
 
 ## Pitfalls already solved in the examples
 
@@ -432,4 +514,5 @@ walkthrough. When the learner reacts, change that one thing and show it again. K
 preferred style stable across topics so each new topic feels familiar.
 
 A change that adds new facts goes through the same accuracy check. Research it, say what you
-couldn't verify, and update the Sources list.
+couldn't verify, and update the Sources list. Every change also gets an independent review that
+covers what changed.
