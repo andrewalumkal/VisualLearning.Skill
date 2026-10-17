@@ -1,7 +1,8 @@
 # visual-learning
 
-A [Claude skill](SKILL.md) that teaches Claude to build animated visual explainers for any subject
-with parts that interact or steps that happen in order.
+A [skill](SKILL.md) that teaches an AI agent to build animated visual explainers for any subject
+with parts that interact or steps that happen in order. It's plain Markdown instructions plus two
+example HTML files, so it isn't tied to one AI model or tool.
 
 It builds two formats that work together:
 
@@ -11,15 +12,29 @@ It builds two formats that work together:
   plain-language tooltips on every element.
 
 Every fact shown is checked against real sources, and each explainer lists those sources on the
-page. Before building, Claude proposes 2–3 approaches with the sources it checked, and waits for
-you to pick one.
+page. Before building, the agent proposes 2–3 approaches with the sources it checked, and waits
+for you to pick one.
 
-After each part is built, a separate subagent reviews it. The reviewer checks the claims against
-the sources, how well it teaches, and how it behaves in a browser. Claude fixes the findings and
-checks the fixes before it delivers the part, and reports what was fixed and what was skipped.
-Where no subagent is available, Claude does its own fresh review and says it wasn't independent.
+After each part is built, a separate reviewer agent (a subagent) reviews it. The reviewer checks
+the claims against the sources, how well it teaches, and how it behaves in a browser. The agent
+fixes the findings and checks the fixes before it delivers the part, and reports what was fixed and
+what was skipped. Where no subagent is available, the agent does its own fresh review and says it
+wasn't independent.
 
 ## Install
+
+### Any AI agent
+
+The agent needs to read files, search the web and write HTML. A browser it can drive, and the
+ability to start a subagent, make the checks and reviews stronger.
+
+- If your tool supports skills, put this folder where it loads them. `SKILL.md` starts with a short
+  YAML header (`name` and `description`) that tells the tool when to use it.
+- Otherwise, give the agent `SKILL.md` as its instructions, for example as a custom instructions
+  file, or by asking it to read `SKILL.md` before it starts. Keep `assets/` next to it so the agent
+  can open the examples.
+
+The steps below are for two tools that load skills from a folder.
 
 ### Claude Code
 
@@ -46,7 +61,7 @@ as a custom skill. Leave out `.git`, `.DS_Store` and `__MACOSX` files.
 
 ## Use
 
-Ask Claude to explain something visually, for example:
+Ask the agent to explain something visually, for example:
 
 - "Walk me through how Kafka consumer groups rebalance."
 - "Show me how compound interest grows."
