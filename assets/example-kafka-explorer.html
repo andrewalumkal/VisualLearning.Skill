@@ -4,59 +4,87 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kafka zoom explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
 <style>
+  /* Theme tokens, after OpenUI's default theme: neutral grays, Inter, soft shadows on controls only.
+     Every color is a variable set three times: light (default), dark from the system, and dark forced
+     with data-theme="dark". Data colors come from RAMPS in the script and follow the same three cases. */
   :root {
-    --bg: #faf9f5; --surface: #ffffff; --surface1: #f1efe8;
-    --text: #1f1e1d; --text2: #5f5e5a; --muted: #888780;
-    --border: rgba(31,30,29,.15); --border-strong: rgba(31,30,29,.3);
-    --accent: #185FA5; --radius: 8px; color-scheme: light;
+    --bg: oklch(.97 0 0); --surface: oklch(.994 0 0); --surface1: oklch(0 0 0 / .04); --sunk: oklch(0 0 0 / .04);
+    --text: oklch(.097 0 0); --text2: oklch(.097 0 0 / .6); --muted: oklch(.097 0 0 / .42);
+    --border: oklch(0 0 0 / .06); --border-strong: oklch(0 0 0 / .12); --border-emph: oklch(0 0 0 / .3);
+    --accent: oklch(.097 0 0); --on-accent: oklch(.994 0 0); --track: oklch(0 0 0 / .08);
+    --box: oklch(.97 0 0);
+    --shadow-m: 0 4px 6px -2px oklch(0 0 0 / .025), 0 2px 2px -2px oklch(0 0 0 / .05);
+    --shadow-xl: 0 8px 16px -4px oklch(0 0 0 / .08), 0 16px 32px -6px oklch(0 0 0 / .12);
+    --radius: 10px; color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #1f1e1d; --surface: #262624; --surface1: #30302e;
-      --text: #f1efe8; --text2: #b4b2a9; --muted: #888780;
-      --border: rgba(241,239,232,.15); --border-strong: rgba(241,239,232,.3);
-      --accent: #85B7EB; color-scheme: dark;
+      --bg: oklch(.145 0 0); --surface: oklch(.205 0 0); --surface1: oklch(.994 0 0 / .04); --sunk: oklch(.994 0 0 / .05);
+      --text: oklch(.985 0 0); --text2: oklch(.985 0 0 / .6); --muted: oklch(.985 0 0 / .42);
+      --border: oklch(.994 0 0 / .06); --border-strong: oklch(.994 0 0 / .12); --border-emph: oklch(.994 0 0 / .4);
+      --accent: oklch(.994 0 0); --on-accent: oklch(.097 0 0); --track: oklch(.994 0 0 / .1);
+      --box: oklch(.269 0 0);
+      --shadow-m: 0 4px 6px -2px oklch(0 0 0 / .08), 0 2px 2px -2px oklch(0 0 0 / .12);
+      --shadow-xl: 0 8px 16px -4px oklch(0 0 0 / .16), 0 16px 32px -6px oklch(0 0 0 / .2); color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #1f1e1d; --surface: #262624; --surface1: #30302e;
-    --text: #f1efe8; --text2: #b4b2a9; --muted: #888780;
-    --border: rgba(241,239,232,.15); --border-strong: rgba(241,239,232,.3);
-    --accent: #85B7EB; color-scheme: dark;
+    --bg: oklch(.145 0 0); --surface: oklch(.205 0 0); --surface1: oklch(.994 0 0 / .04); --sunk: oklch(.994 0 0 / .05);
+    --text: oklch(.985 0 0); --text2: oklch(.985 0 0 / .6); --muted: oklch(.985 0 0 / .42);
+    --border: oklch(.994 0 0 / .06); --border-strong: oklch(.994 0 0 / .12); --border-emph: oklch(.994 0 0 / .4);
+    --accent: oklch(.994 0 0); --on-accent: oklch(.097 0 0); --track: oklch(.994 0 0 / .1);
+    --box: oklch(.269 0 0);
+    --shadow-m: 0 4px 6px -2px oklch(0 0 0 / .08), 0 2px 2px -2px oklch(0 0 0 / .12);
+    --shadow-xl: 0 8px 16px -4px oklch(0 0 0 / .16), 0 16px 32px -6px oklch(0 0 0 / .2); color-scheme: dark;
   }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { position: relative; max-width: 760px; margin: 0 auto; padding: 24px 16px; }
-  h1 { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
-  .sub { color: var(--text2); font-size: 14px; margin: 0 0 12px; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.5 "Inter", system-ui, sans-serif; letter-spacing: -.01em; }
+  main { position: relative; max-width: 760px; margin: 0 auto; padding: 28px 16px; }
+  h1 { font-size: 24px; font-weight: 600; line-height: 1.1; margin: 0 0 8px; }
+  .sub { color: var(--text2); font-size: 14px; margin: 0 0 16px; }
   .bar { display: flex; align-items: center; gap: 8px; min-height: 36px; flex-wrap: wrap; }
   #crumbs { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; font-size: 14px; }
-  .crumb { border: none; background: none; padding: 2px 4px; color: var(--accent); cursor: pointer; font: inherit; }
-  .here { padding: 2px 4px; font-weight: 500; }
+  .crumb { border: none; background: none; box-shadow: none; padding: 2px 4px; color: var(--text2); cursor: pointer; font: inherit; }
+  .crumb:hover { background: none; color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+  .here { padding: 2px 4px; font-weight: 560; }
   .sep { color: var(--muted); }
-  button { font: inherit; font-size: 13px; color: var(--text); background: transparent; border: .5px solid var(--border-strong);
-           border-radius: var(--radius); padding: 5px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-  button:hover { background: var(--surface1); }
+  button { font: inherit; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong);
+           border-radius: var(--radius); padding: 5px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: var(--shadow-m); }
+  button:hover { background: var(--sunk); box-shadow: none; }
   button:active { transform: scale(.98); }
   .spacer { margin-left: auto; }
-  .sources h2 { font-size: 16px; font-weight: 500; margin: 24px 0 6px; }
-  .sources p, .sources ol { font-size: 13px; color: var(--text2); margin: 0; }
+  #pause { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+  #pause:hover { opacity: .8; }
+  #views { display: inline-flex; gap: 4px; padding: 4px; min-height: 0; background: var(--sunk); border-radius: 12px; margin-bottom: 8px; }
+  .vbtn { border-color: transparent; background: transparent; box-shadow: none; color: var(--text2); }
+  .vbtn:hover { color: var(--text); background: transparent; }
+  .vbtn.active { background: var(--surface); color: var(--text); border-color: var(--border); box-shadow: var(--shadow-m); }
+  .sources { font-size: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 4px 20px 16px; margin-top: 20px; }
+  .sources h2 { font-size: 16px; font-weight: 600; margin: 16px 0 6px; }
+  .sources p, .sources ol { font-size: 14px; color: var(--text2); margin: 0; }
   .sources ol { padding-left: 20px; }
-  .sources li { margin: 2px 0; }
-  .sources a { color: var(--accent); }
-  .vbtn.active { background: var(--surface1); border-color: var(--text2); font-weight: 500; }
-  svg#zv { display: block; width: 100%; height: auto; background: var(--surface); border: .5px solid var(--border); border-radius: 12px; margin: 8px 0; touch-action: manipulation; }
-  #controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; font-size: 13px; color: var(--text2); min-height: 36px; }
+  .sources li { margin: 4px 0; }
+  .sources a { color: var(--text); text-decoration: underline; text-decoration-color: var(--border-emph); text-underline-offset: 3px; }
+  svg#zv { display: block; width: 100%; height: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; margin: 8px 0; touch-action: manipulation; }
+  #controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; font-size: 14px; color: var(--text2); min-height: 36px;
+              background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; box-sizing: border-box; }
+  #controls button { padding: 3px 10px; }
   .grp { display: inline-flex; align-items: center; gap: 8px; }
-  .val { color: var(--text); font-weight: 500; min-width: 28px; text-align: center; }
-  .sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .val { color: var(--text); font-weight: 560; min-width: 28px; text-align: center; font-variant-numeric: tabular-nums; }
+  .sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; box-sizing: border-box; border: 1px solid transparent; }
   .hint { font-size: 13px; color: var(--muted); margin-top: 12px; }
-  input[type=range] { width: 120px; accent-color: var(--accent); }
-  #zv text { font-family: inherit; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 120px; height: 6px; border-radius: 999px; background: var(--track); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border-emph); box-shadow: var(--shadow-m); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border-emph); box-shadow: var(--shadow-m); cursor: pointer; }
+  input[type=range]:focus-visible { box-shadow: 0 0 0 3px var(--border-strong); }
+  #zv text { font-family: inherit; letter-spacing: -.01em; }
   .t, .th { font-size: 14px; fill: var(--text); }
-  .th { font-weight: 500; }
+  .th { font-weight: 560; }
   .ts { font-size: 12px; fill: var(--text2); }
-  .box { fill: var(--surface1); stroke: var(--border-strong); }
+  .box { fill: var(--box); stroke: var(--border-strong); }
   .arr { stroke: var(--muted); stroke-width: 1.2; fill: none; }
   .leader { stroke: var(--muted); stroke-width: .8; stroke-dasharray: 3 3; fill: none; }
   .node { cursor: pointer; }
@@ -79,8 +107,8 @@
   .zoom-key i::after { width: 1.6px; height: 8px; }
   /* Tooltips: any element with data-tip. Dynamic-layer shapes opt back in to the pointer so they can be hovered. */
   #dyn [data-tip] { pointer-events: auto; cursor: help; }
-  #tip { position: absolute; z-index: 10; display: none; max-width: 260px; padding: 8px 10px; font-size: 13px; line-height: 1.45;
-         color: var(--text); background: var(--surface); border: .5px solid var(--border-strong); border-radius: var(--radius); pointer-events: none; }
+  #tip { position: absolute; z-index: 10; display: none; max-width: 260px; padding: 8px 12px; font-size: 13px; line-height: 1.45;
+         color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xl); pointer-events: none; }
 </style>
 </head>
 <body>
@@ -140,19 +168,22 @@ const dot = (x1, y1, x2, y2, u, r, fill) => {
 const round1 = v => Math.round(v * 10) / 10;
 
 /* Color ramps: [50, 100, 200, 600, 800]. Light = 50 fill / 600 stroke / 800 title.
-   Dark = 800 fill / 200 stroke / 100 title. Use class="c-<name>" on a <g> wrapping a rect + text. */
+   Dark = 800 fill / 200 stroke / 100 title. Use class="c-<name>" on a <g> wrapping a rect + text.
+   Legends use the same class on a swatch (<span class="sw c-<name>">), so a key always shows the
+   color the marks have in the current mode. Never give a legend a hex color of its own. */
 const RAMPS = {
   purple: ['#EEEDFE', '#CECBF6', '#AFA9EC', '#534AB7', '#3C3489'],
   teal:   ['#E1F5EE', '#9FE1CB', '#5DCAA5', '#0F6E56', '#085041'],
   coral:  ['#FAECE7', '#F5C4B3', '#F0997B', '#993C1D', '#712B13'],
   pink:   ['#FBEAF0', '#F4C0D1', '#ED93B1', '#993556', '#72243E'],
   amber:  ['#FAEEDA', '#FAC775', '#EF9F27', '#854F0B', '#633806'],
-  gray:   ['#F1EFE8', '#D3D1C7', '#B4B2A9', '#5F5E5A', '#444441'],
+  gray:   ['#F5F5F5', '#E5E5E5', '#A1A1A1', '#737373', '#262626'],   // neutral, matches the page grays
 };
 (function injectRamps() {
   const rules = (pre, dark) => Object.entries(RAMPS).map(([n, [c50, c100, c200, c600, c800]]) => {
     const [fill, stroke, title, sub] = dark ? [c800, c200, c100, c200] : [c50, c600, c800, c600];
     return `${pre}.c-${n}>rect,${pre}.c-${n}>circle{fill:${fill};stroke:${stroke}}` +
+           `${pre}.sw.c-${n}{background:${fill};border-color:${stroke}}` +
            `${pre}.c-${n}>.th,${pre}.c-${n}>.t{fill:${title}}${pre}.c-${n}>.ts{fill:${sub}}`;
   }).join('');
   const style = document.createElement('style');
@@ -241,7 +272,7 @@ const FMT = { rate: v => round1(v) + '/s', cRate: v => round1(v) + '/s' };
    Tooltip text: short sentences, one idea each, active voice, plain words (STE style).
    ===================================================================== */
 const evs = (t, dur, now) => S.ev.filter(e => e.t === t && now - e.t0 < dur).map(e => ({ ...e, u: (now - e.t0) / dur }));
-const swatch = hex => `<span class="sw" style="background:${hex}"></span>`;
+const swatch = cls => `<span class="sw ${cls}"></span>`;   // legend chip; follows light/dark like the marks
 const LAG_TIP = 'Lag is the number of records that wait to be read. Lag increases when records arrive faster than the consumer reads them.';
 
 // Evidence for what this explainer teaches. Only list pages that were actually read.
@@ -401,7 +432,7 @@ const SC = {
     },
     controls: () =>
       C.stepper('Producers', 'producers', 'producers', 'Add or remove producers. More producers send more records.') +
-      `<span class="grp"${tip('Send one record with this key. Look at the partition that it goes to.')}>Send key ${KEYS.map((k, i) => C.button(swatch(k.hex) + k.k, 'key', i)).join('')}</span>` +
+      `<span class="grp"${tip('Send one record with this key. Look at the partition that it goes to.')}>Send key ${KEYS.map((k, i) => C.button(swatch(k.cls) + k.k, 'key', i)).join('')}</span>` +
       C.button('Burst 10', 'burst', '', 'Send 10 records quickly. Look at the lag increase.'),
   },
 

@@ -11,6 +11,9 @@ It builds two formats that work together:
 - **Interactive explorers.** Switchable views of one shared model, with drill-down, controls and
   plain-language tooltips on every element.
 
+Both formats share one clean, neutral page style based on [OpenUI](https://www.openui.com)'s
+default theme. They follow the system's light or dark mode, and their legends change with it.
+
 Every fact shown is checked against real sources, and each explainer lists those sources on the
 page. Before building, the agent proposes 2–3 approaches with the sources it checked, and waits
 for you to pick one.
