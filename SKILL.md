@@ -71,8 +71,6 @@ review is the exception: it always happens.
 - **Simple, beautiful, easy to maintain beats lots of visual detail.** Use flat 2D shapes, a few
   colors and a calm layout. Don't use 3D. It was tried and rejected, so reach for it only if the
   user asks.
-- **Use the page style from the examples.** See "Visual style".
-- **Legends must match the marks in light and dark mode.** See "Light and dark mode".
 - **Fundamentals first, complexity on demand.** The first thing on screen teaches the core idea.
   Detail is available, but the learner chooses when to go there.
 - **Interactive.** Controls let the learner change the system and see the consequence: rates,
@@ -299,30 +297,19 @@ up one level.
 
 ## Visual style
 
-Copy the page style from the examples: Inter, neutral grays, white cards with hairline borders, a
-solid button for the main action, pill-shaped switchers, and soft shadows on controls and tooltips
-only.
-
-- Canvas shapes are flat: thin borders, rounded corners, no gradients, shadows or glow.
+- Copy the page style from the examples. Canvas shapes are flat: no gradients, shadows or glow.
 - Wide, short SVG canvases, about 680×320, so a scene fits on screen without scrolling. Text at
   14px for labels and 12px for secondary text. Sentence case. At most two lines of text in a box.
 - Color carries meaning, not decoration. Use 2–3 color ramps per scene: for example, one hue per
   category, one hue for the things that act on them, and gray for structure and "done" states.
   Add a legend when color encodes something.
+- Work in both light and dark mode. Legends use the same color classes as their marks, so they
+  match in both.
 - Motion is short (0.3–0.6s in explorers), eased and purposeful. In a walkthrough, each motion
   inside a step is about 0.5–2s, and the steps follow the pacing in "Guided walkthroughs". Things
   that persist in the real system should persist in the visual. For example, Kafka records that have
   been read fade but stay.
 - A walkthrough canvas can be taller (about 680×400), because it builds up a whole picture.
-
-### Light and dark mode
-
-- Define every color, data colors included, as a CSS variable or class. Set it for light on
-  `:root`, for dark under `@media (prefers-color-scheme: dark)` with
-  `:root:not([data-theme="light"])`, and again under `:root[data-theme="dark"]`.
-- A legend swatch uses the same class or variable as the marks it explains, for example
-  `<span class="sw c-purple">`. Never give a legend its own hex color.
-- `var()` doesn't work in SVG presentation attributes. Use a class or `style="fill:var(--name)"`.
 
 ## Worked examples and reusable parts
 
@@ -373,7 +360,7 @@ Parts worth reusing as they are:
   - controls wiring (`C.stepper`, `C.slider` and `C.button`, with `ACT` handlers)
   - tooltips (`tip()` and `data-tip`)
   - the pulsing drill badge (`plus(x,y)`)
-  - color ramps that handle light and dark mode, and legend swatches that use the same ramp class
+  - color ramps that handle light and dark mode
   - a "Sources" list rendered from a `SOURCES` array, plus a simplifications note
 
 ## Delivering
@@ -401,7 +388,6 @@ Open it and go through every view, every zoom level and every control. Check for
 - missing tooltips
 - numbers with float junk such as `0.30000000000000004`
 - dark mode readability
-- every legend swatch matches the mark it explains, in light mode and in dark mode
 - every claim matches a source in the page's Sources list, or is marked "Not verified in a source"
 - simplifications are labeled
 
@@ -510,11 +496,6 @@ Walkthrough:
 - **SVG text collapses spaces.** Use visible separators such as " · " instead of runs of spaces.
 - **Fixed-width boxes.** Long labels overflow. Check the longest label in each box at the end of
   each step.
-
-Both formats:
-
-- **Legends stuck in light mode.** A swatch with its own hex color didn't change in dark mode. Give
-  it the marks' class instead.
 
 Explorer:
 
