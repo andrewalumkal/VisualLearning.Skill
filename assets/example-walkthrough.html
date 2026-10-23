@@ -6,35 +6,66 @@
 <title>Page walkthrough</title>
 <!-- Minimal guided-walkthrough template: script of chapters/steps, replay-based rendering, player
      with auto-pause, scrubber, chapter buttons and speed. Topic: what a database page is. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
 <style>
-  :root { --bg:#faf9f5; --surface:#fff; --surface1:#f1efe8; --text:#1f1e1d; --text2:#5f5e5a; --muted:#888780;
-          --border:rgba(31,30,29,.15); --border-strong:rgba(31,30,29,.3); --accent:#185FA5; --track:#e4e2da; color-scheme:light; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#1f1e1d; --surface:#262624; --surface1:#30302e;
-    --text:#f1efe8; --text2:#b4b2a9; --border:rgba(241,239,232,.15); --border-strong:rgba(241,239,232,.3); --accent:#85B7EB; --track:#3a3a37; color-scheme:dark; } }
-  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
-  main { position:relative; max-width:760px; margin:0 auto; padding:24px 16px; }
-  h1 { font-size:22px; font-weight:500; margin:0 0 12px; }
-  svg { display:block; width:100%; height:auto; background:var(--surface); border:.5px solid var(--border); border-radius:12px 12px 0 0; }
-  svg text { font-family:inherit; }
-  .tm { font-size:13px; fill:var(--text); } .th { font-size:14px; font-weight:500; fill:var(--text); } .ts { font-size:12px; fill:var(--text2); }
-  .frame { fill:none; stroke:var(--border-strong); } .arr { stroke:var(--muted); stroke-width:1.1; fill:none; }
+  /* Theme tokens: neutral grays, Inter, soft shadows on controls only.
+     Every color, including data colors, is a variable set three times: light (default), dark from the
+     system, and dark forced with data-theme="dark". Rules below use only the variables. */
+  :root { --bg:oklch(.97 0 0); --surface:oklch(.994 0 0); --surface1:oklch(0 0 0 / .04); --sunk:oklch(0 0 0 / .04);
+          --text:oklch(.097 0 0); --text2:oklch(.097 0 0 / .6); --muted:oklch(.097 0 0 / .42);
+          --border:oklch(0 0 0 / .06); --border-strong:oklch(0 0 0 / .12); --border-emph:oklch(0 0 0 / .3);
+          --accent:oklch(.097 0 0); --on-accent:oklch(.994 0 0); --track:oklch(0 0 0 / .08);
+          --gray-fill:#F5F5F5; --gray-stroke:#737373; --purple-fill:#EEEDFE; --purple-stroke:#534AB7; --purple-text:#3C3489;
+          --shadow-m:0 4px 6px -2px oklch(0 0 0 / .025), 0 2px 2px -2px oklch(0 0 0 / .05);
+          --shadow-xl:0 8px 16px -4px oklch(0 0 0 / .08), 0 16px 32px -6px oklch(0 0 0 / .12); color-scheme:light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:oklch(.145 0 0); --surface:oklch(.205 0 0); --surface1:oklch(.994 0 0 / .04); --sunk:oklch(.994 0 0 / .05);
+    --text:oklch(.985 0 0); --text2:oklch(.985 0 0 / .6); --muted:oklch(.985 0 0 / .42);
+    --border:oklch(.994 0 0 / .06); --border-strong:oklch(.994 0 0 / .12); --border-emph:oklch(.994 0 0 / .4);
+    --accent:oklch(.994 0 0); --on-accent:oklch(.097 0 0); --track:oklch(.994 0 0 / .1);
+    --gray-fill:#262626; --gray-stroke:#A1A1A1; --purple-fill:#3C3489; --purple-stroke:#AFA9EC; --purple-text:#CECBF6;
+    --shadow-m:0 4px 6px -2px oklch(0 0 0 / .08), 0 2px 2px -2px oklch(0 0 0 / .12);
+    --shadow-xl:0 8px 16px -4px oklch(0 0 0 / .16), 0 16px 32px -6px oklch(0 0 0 / .2); color-scheme:dark; } }
+  :root[data-theme="dark"] { --bg:oklch(.145 0 0); --surface:oklch(.205 0 0); --surface1:oklch(.994 0 0 / .04); --sunk:oklch(.994 0 0 / .05);
+    --text:oklch(.985 0 0); --text2:oklch(.985 0 0 / .6); --muted:oklch(.985 0 0 / .42);
+    --border:oklch(.994 0 0 / .06); --border-strong:oklch(.994 0 0 / .12); --border-emph:oklch(.994 0 0 / .4);
+    --accent:oklch(.994 0 0); --on-accent:oklch(.097 0 0); --track:oklch(.994 0 0 / .1);
+    --gray-fill:#262626; --gray-stroke:#A1A1A1; --purple-fill:#3C3489; --purple-stroke:#AFA9EC; --purple-text:#CECBF6;
+    --shadow-m:0 4px 6px -2px oklch(0 0 0 / .08), 0 2px 2px -2px oklch(0 0 0 / .12);
+    --shadow-xl:0 8px 16px -4px oklch(0 0 0 / .16), 0 16px 32px -6px oklch(0 0 0 / .2); color-scheme:dark; }
+  body { margin:0; background:var(--bg); color:var(--text); font:400 16px/1.5 "Inter",system-ui,sans-serif; letter-spacing:-.01em; }
+  main { position:relative; max-width:760px; margin:0 auto; padding:28px 16px; }
+  h1 { font-size:24px; font-weight:600; line-height:1.1; margin:0 0 16px; }
+  svg { display:block; width:100%; height:auto; background:var(--surface); border:1px solid var(--border); border-bottom:none; border-radius:16px 16px 0 0; }
+  svg text { font-family:inherit; letter-spacing:-.01em; }
+  .tm { font-size:13px; fill:var(--text); } .th { font-size:14px; font-weight:560; fill:var(--text); } .ts { font-size:12px; fill:var(--text2); }
+  .frame { fill:none; stroke:var(--border-emph); } .arr { stroke:var(--muted); stroke-width:1.1; fill:none; }
   .hl { fill:none; stroke:#EF9F27; stroke-width:2.2; }
-  .c-gray>rect { fill:#F1EFE8; stroke:#5F5E5A; } .c-purple>rect { fill:#EEEDFE; stroke:#534AB7; } .c-purple>.tm { fill:#3C3489; }
-  @media (prefers-color-scheme: dark) { .c-gray>rect { fill:#444441; stroke:#B4B2A9; } .c-purple>rect { fill:#3C3489; stroke:#AFA9EC; } .c-purple>.tm { fill:#CECBF6; } }
-  #cap { background:var(--surface); border:.5px solid var(--border); border-top:none; border-radius:0 0 12px 12px; padding:10px 16px 12px; min-height:96px; }
-  #capch { font-size:12px; color:var(--muted); } #captext { font-size:16px; margin:2px 0 0; } #caphint { font-size:13px; color:var(--text2); min-height:18px; }
+  .c-gray>rect { fill:var(--gray-fill); stroke:var(--gray-stroke); }
+  .c-purple>rect { fill:var(--purple-fill); stroke:var(--purple-stroke); } .c-purple>.tm { fill:var(--purple-text); }
+  #cap { background:var(--surface); border:1px solid var(--border); border-radius:0 0 16px 16px; padding:14px 20px 16px; min-height:96px; }
+  #capch { display:inline-block; font-size:12px; font-weight:560; color:var(--text2); background:var(--sunk); border-radius:999px; padding:2px 10px; }
+  #captext { font-size:16px; margin:8px 0 2px; } #caphint { font-size:13px; color:var(--text2); min-height:18px; }
   .prow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  button, select { font:inherit; font-size:13px; color:var(--text); background:transparent; border:.5px solid var(--border-strong); border-radius:8px; padding:5px 12px; cursor:pointer; }
-  button:hover { background:var(--surface1); } button.on { background:var(--surface1); border-color:var(--text2); font-weight:500; }
+  button, select { font:inherit; font-size:14px; font-weight:500; line-height:20px; color:var(--text); background:var(--surface); border:1px solid var(--border-strong);
+                   border-radius:10px; padding:5px 14px; cursor:pointer; box-shadow:var(--shadow-m); }
+  button:hover, select:hover { background:var(--sunk); box-shadow:none; }
+  #play { background:var(--accent); color:var(--on-accent); border-color:transparent; min-width:96px; }
+  #play:hover { opacity:.8; }
   #time { font-size:13px; color:var(--text2); margin-left:auto; font-variant-numeric:tabular-nums; }
-  #scrub { position:relative; height:28px; margin:10px 0 4px; cursor:pointer; touch-action:none; }
-  #scrub .track, #scrub .fill { position:absolute; top:11px; height:6px; border-radius:3px; left:0; }
-  #scrub .track { right:0; background:var(--track); } #scrub .fill { background:var(--text2); }
-  #scrub .tick { position:absolute; top:7px; width:2px; height:14px; margin-left:-1px; background:var(--muted); }
-  #scrub .knob { position:absolute; top:5px; width:18px; height:18px; margin-left:-9px; border-radius:50%; background:var(--surface); border:2px solid var(--text); box-sizing:border-box; }
-  #chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
-  .sources { font-size:13px; color:var(--text2); } .sources a { color:var(--accent); }
-  #tip { position:absolute; display:none; max-width:280px; padding:8px 10px; font-size:13px; background:var(--surface); border:.5px solid var(--border-strong); border-radius:8px; pointer-events:none; }
+  #scrub { position:relative; height:28px; margin:14px 0 8px; cursor:pointer; touch-action:none; }
+  #scrub .track, #scrub .fill { position:absolute; top:11px; height:6px; border-radius:999px; left:0; }
+  #scrub .track { right:0; background:var(--track); } #scrub .fill { background:var(--accent); }
+  #scrub .tick { position:absolute; top:8px; width:2px; height:12px; margin-left:-1px; border-radius:1px; background:var(--muted); }
+  #scrub .knob { position:absolute; top:5px; width:18px; height:18px; margin-left:-9px; border-radius:50%; background:var(--surface); border:1px solid var(--border-emph); box-shadow:var(--shadow-m); box-sizing:border-box; }
+  #chips { display:inline-flex; flex-wrap:wrap; gap:4px; margin-top:12px; padding:4px; background:var(--sunk); border-radius:12px; }
+  #chips button { border-color:transparent; background:transparent; box-shadow:none; color:var(--text2); }
+  #chips button:hover { color:var(--text); } #chips button.on { background:var(--surface); color:var(--text); border-color:var(--border); box-shadow:var(--shadow-m); }
+  .sources { font-size:14px; color:var(--text2); background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:4px 20px; margin-top:20px; }
+  .sources b { color:var(--text); font-weight:600; } .sources ol { padding-left:20px; }
+  .sources a { color:var(--text); text-decoration:underline; text-decoration-color:var(--border-emph); text-underline-offset:3px; }
+  #tip { position:absolute; display:none; max-width:280px; padding:8px 12px; font-size:13px; line-height:1.45; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow-xl); pointer-events:none; }
 </style>
 </head>
 <body>

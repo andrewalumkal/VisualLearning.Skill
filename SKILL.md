@@ -290,20 +290,21 @@ strict standard. The reader may have no background in the subject.
 Mark every zoom target with the same badge: a blue plus in a tinted circle, with a ring that
 pulses slowly, about every 2.4s. On hover it fills solid. Explain the marker once on the page: "A
 pulsing blue plus means you can click to zoom in." Keep the pulse slow and subtle so it reads as a
-signpost, not an alarm. Turn it off under `prefers-reduced-motion`. Reserve blue for this marker
-and for links, so never use it for data. Zooming in should feel like flying into the box you
+signpost, not an alarm. Turn it off under `prefers-reduced-motion`. Reserve blue for this marker,
+so never use it for data. Zooming in should feel like flying into the box you
 clicked, and zooming out should reverse it. Breadcrumbs, a zoom-out button and Escape all go back
 up one level.
 
 ## Visual style
 
-- Flat shapes, 0.5px borders, rounded corners, no gradients, shadows or glow.
+- Copy the page style from the examples. Canvas shapes are flat: no gradients, shadows or glow.
 - Wide, short SVG canvases, about 680×320, so a scene fits on screen without scrolling. Text at
   14px for labels and 12px for secondary text. Sentence case. At most two lines of text in a box.
 - Color carries meaning, not decoration. Use 2–3 color ramps per scene: for example, one hue per
   category, one hue for the things that act on them, and gray for structure and "done" states.
   Add a legend when color encodes something.
-- Work in both light and dark mode.
+- Work in both light and dark mode. Legends use the same color classes as their marks, so they
+  match in both.
 - Motion is short (0.3–0.6s in explorers), eased and purposeful. In a walkthrough, each motion
   inside a step is about 0.5–2s, and the steps follow the pacing in "Guided walkthroughs". Things
   that persist in the real system should persist in the visual. For example, Kafka records that have

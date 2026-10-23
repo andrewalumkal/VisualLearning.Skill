@@ -11,6 +11,8 @@ It builds two formats that work together:
 - **Interactive explorers.** Switchable views of one shared model, with drill-down, controls and
   plain-language tooltips on every element.
 
+Both formats follow the system's light or dark mode.
+
 Every fact shown is checked against real sources, and each explainer lists those sources on the
 page. Before building, the agent proposes 2–3 approaches with the sources it checked, and waits
 for you to pick one.
