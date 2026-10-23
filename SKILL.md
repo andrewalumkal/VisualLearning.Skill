@@ -71,13 +71,8 @@ review is the exception: it always happens.
 - **Simple, beautiful, easy to maintain beats lots of visual detail.** Use flat 2D shapes, a few
   colors and a calm layout. Don't use 3D. It was tried and rejected, so reach for it only if the
   user asks.
-- **The page style is the one in the examples.** It follows OpenUI's default theme: Inter, neutral
-  grays, white cards on a light gray page, pill-shaped switchers and a solid primary button. The
-  user compared it side by side with the older warm, thin-bordered style and chose this one. See
-  "Visual style".
-- **Light and dark mode must both be right, legends included.** In past explainers the marks
-  changed color in dark mode but the legend kept its light-mode colors, so the two didn't match.
-  See "Light and dark mode".
+- **Use the page style from the examples.** See "Visual style".
+- **Legends must match the marks in light and dark mode.** See "Light and dark mode".
 - **Fundamentals first, complexity on demand.** The first thing on screen teaches the core idea.
   Detail is available, but the learner chooses when to go there.
 - **Interactive.** Controls let the learner change the system and see the consequence: rates,
@@ -298,40 +293,22 @@ Mark every zoom target with the same badge: a blue plus in a tinted circle, with
 pulses slowly, about every 2.4s. On hover it fills solid. Explain the marker once on the page: "A
 pulsing blue plus means you can click to zoom in." Keep the pulse slow and subtle so it reads as a
 signpost, not an alarm. Turn it off under `prefers-reduced-motion`. Reserve blue for this marker,
-so never use it for data or for other controls. Links are neutral and underlined. Zooming in should
-feel like flying into the box you clicked, and zooming out should reverse it. Breadcrumbs, a
-zoom-out button and Escape all go back up one level.
+so never use it for data. Zooming in should feel like flying into the box you
+clicked, and zooming out should reverse it. Breadcrumbs, a zoom-out button and Escape all go back
+up one level.
 
 ## Visual style
 
-The style has two layers: the **page** around the picture (title, controls, captions, sources) and
-the **canvas** (the SVG that teaches). Copy the CSS tokens from the examples instead of inventing
-new ones, so every explainer looks like part of one set.
+Copy the page style from the examples: Inter, neutral grays, white cards with hairline borders, a
+solid button for the main action, pill-shaped switchers, and soft shadows on controls and tooltips
+only.
 
-The page follows OpenUI's default theme (the `@openuidev/react-ui` theme tokens):
-
-- **Type:** Inter from Google Fonts, falling back to `system-ui`. Body 16px, line height 1.5,
-  letter spacing −0.01em. Headings weight 600, labels and emphasis weight 560, body weight 400.
-- **Color:** neutral grays with no warm or cool tint. A light gray page, white cards, near-black
-  text, secondary text at 60% opacity, and hairline borders at 6–12% opacity. The primary accent is
-  neutral too: near-black in light mode and near-white in dark mode.
-- **Cards:** the canvas, the caption panel, the controls row and the Sources section each sit on a
-  white card with a 1px hairline border and 14–16px corners.
-- **Controls:** buttons have 10px corners, a 1px border and a very soft shadow that goes away on
-  hover. The main action (Play, Pause) is a solid accent button. View switchers and chapter buttons
-  are a segmented pill: a tinted track, with the active item as a raised white chip.
-- **Sliders and scrubber:** a thin, fully rounded track with a white round thumb.
-- **Tooltips:** a white card with a hairline border, 10px corners and a larger soft shadow.
-
-The canvas stays flat:
-
-- Flat shapes, thin borders, rounded corners, no gradients, shadows or glow. Shadows belong to the
-  page controls only.
+- Canvas shapes are flat: thin borders, rounded corners, no gradients, shadows or glow.
 - Wide, short SVG canvases, about 680×320, so a scene fits on screen without scrolling. Text at
   14px for labels and 12px for secondary text. Sentence case. At most two lines of text in a box.
 - Color carries meaning, not decoration. Use 2–3 color ramps per scene: for example, one hue per
   category, one hue for the things that act on them, and gray for structure and "done" states.
-  Add a legend when color encodes something. The gray ramp uses the same neutral grays as the page.
+  Add a legend when color encodes something.
 - Motion is short (0.3–0.6s in explorers), eased and purposeful. In a walkthrough, each motion
   inside a step is about 0.5–2s, and the steps follow the pacing in "Guided walkthroughs". Things
   that persist in the real system should persist in the visual. For example, Kafka records that have
@@ -340,27 +317,12 @@ The canvas stays flat:
 
 ### Light and dark mode
 
-Every explainer follows the system color scheme, and every color on it, legends included, must
-change with it. A legend that keeps its light-mode colors while the marks switch to dark-mode
-colors teaches the wrong mapping, so treat it as a broken page, not as polish.
-
-- **Every color is a token.** Define each color as a CSS variable or class, and set it three times:
-  light as the default on `:root`, dark under `@media (prefers-color-scheme: dark)` with
-  `:root:not([data-theme="light"])`, and dark again under `:root[data-theme="dark"]`. The
-  examples do this, for page colors and for data colors.
-- **A legend uses the same token as the marks it explains.** Give the swatch the mark's class or
-  variable, for example `<span class="sw c-purple">` next to records drawn with
-  `<g class="c-purple">`. Then the two can't drift apart. If the mark is a pale fill with a strong
-  outline, the swatch is too.
-- **No color literals in markup.** A hex color in a `fill="#…"` attribute, a
-  `style="background:#…"` or a JavaScript constant can't follow the scheme. Use a class, or
-  `style="fill:var(--name)"` (`var()` doesn't work inside SVG presentation attributes). The only
-  exception is a mid-tone that is readable on both backgrounds and used identically in both modes,
-  such as a moving dot. If a legend explains that dot, the legend uses the same constant.
-- **The same goes for everything that shows a color:** legend chips, key buttons, color words in
-  tooltips ("purple records"), and HTML next to the canvas.
-- **Check it in both modes.** In dark mode, put each legend swatch next to the mark it explains and
-  confirm they match. Then do the same in light mode.
+- Define every color, data colors included, as a CSS variable or class. Set it for light on
+  `:root`, for dark under `@media (prefers-color-scheme: dark)` with
+  `:root:not([data-theme="light"])`, and again under `:root[data-theme="dark"]`.
+- A legend swatch uses the same class or variable as the marks it explains, for example
+  `<span class="sw c-purple">`. Never give a legend its own hex color.
+- `var()` doesn't work in SVG presentation attributes. Use a class or `style="fill:var(--name)"`.
 
 ## Worked examples and reusable parts
 
@@ -411,9 +373,7 @@ Parts worth reusing as they are:
   - controls wiring (`C.stepper`, `C.slider` and `C.button`, with `ACT` handlers)
   - tooltips (`tip()` and `data-tip`)
   - the pulsing drill badge (`plus(x,y)`)
-  - color ramps that handle light and dark mode, and legend swatches (`swatch(cls)`) that use the
-    same ramp class as the marks
-  - the page theme tokens, set for light, dark from the system, and forced dark
+  - color ramps that handle light and dark mode, and legend swatches that use the same ramp class
   - a "Sources" list rendered from a `SOURCES` array, plus a simplifications note
 
 ## Delivering
@@ -497,9 +457,8 @@ Ask it to check:
 2. **Teaching.** Each element is introduced before it moves. Each step has one idea. Fundamentals
    come before complexity. Analogies and simplifications are labeled.
 3. **Behavior.** Run the checklist in "Verify before saying it's done" in a real browser,
-   in light mode and in dark mode. Compare each legend swatch to the marks it explains in both.
-   For an explorer, also try edge cases: reset during an animation, repeated clicks, long runs,
-   timers that outlive a reset, and caps or limits in the model.
+   including dark mode. For an explorer, also try edge cases: reset during an animation, repeated
+   clicks, long runs, timers that outlive a reset, and caps or limits in the model.
 4. **Consistency.** Nothing contradicts an earlier part. Terms, colors and the legend match
    across parts.
 
@@ -554,13 +513,8 @@ Walkthrough:
 
 Both formats:
 
-- **Legends stuck in light mode.** A legend swatch with its own hex color
-  (`style="background:#7F77DD"`) stayed the same in dark mode while the marks it explained switched
-  to their dark ramp colors. Give the swatch the marks' class (`sw c-purple`) so both come from one
-  token. See "Light and dark mode".
-- **Dark rules that ignore a forced theme.** A bare `@media (prefers-color-scheme: dark)` rule
-  wins even when the page sets `data-theme="light"`. Guard it with `:root:not([data-theme="light"])`
-  and repeat it under `:root[data-theme="dark"]`.
+- **Legends stuck in light mode.** A swatch with its own hex color didn't change in dark mode. Give
+  it the marks' class instead.
 
 Explorer:
 
